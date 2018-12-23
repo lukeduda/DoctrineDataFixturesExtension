@@ -26,6 +26,7 @@ return function (ContainerConfigurator $container) {
     $container->set(HookListener::class)
         ->args([
             '%behat.doctrine_data_fixtures.lifetime%',
+            '%behat.doctrine_data_fixtures.scenario_lifetime_feature_files%',
         ])
         ->call('setFixtureService', [
             ref(FixtureService::class),

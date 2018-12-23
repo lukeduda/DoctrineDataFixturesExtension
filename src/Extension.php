@@ -72,6 +72,12 @@ final class Extension implements ExtensionInterface
                         ->thenInvalid('Invalid fixtures lifetime "%s"')
                     ->end()
                 ->end()
+                ->arrayNode('scenario_lifetime_feature_files')
+                    ->defaultValue([])
+                    ->treatFalseLike([])
+                    ->treatNullLike([])
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
             ->end();
     }
 
@@ -85,7 +91,7 @@ final class Extension implements ExtensionInterface
             $loader->load('backup.php');
         }
 
-        $keys = ['lifetime', 'autoload', 'fixtures', 'directories'];
+        $keys = ['lifetime', 'autoload', 'fixtures', 'directories', 'scenario_lifetime_feature_files'];
         foreach ($keys as $key) {
             $container->setParameter('behat.doctrine_data_fixtures.'.$key, $config[$key]);
         }

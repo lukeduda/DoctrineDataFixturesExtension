@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace BehatExtension\DoctrineDataFixturesExtension\EventListener;
 
+use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\FeatureTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
@@ -34,9 +35,15 @@ class HookListener implements EventSubscriberInterface
      */
     private $fixtureService;
 
-    public function __construct(string $lifetime)
+    /**
+     * @var array
+     */
+    private $scenarioLifetimeFeatureFiles;
+
+    public function __construct(string $lifetime, array $scenarioLifetimeFeatureFiles)
     {
         $this->lifetime = $lifetime;
+        $this->scenarioLifetimeFeatureFiles = $scenarioLifetimeFeatureFiles;
     }
 
     public static function getSubscribedEvents()
@@ -95,13 +102,14 @@ class HookListener implements EventSubscriberInterface
     /**
      * Listens to "scenario.before" and "outline.example.before" event.
      */
-    public function beforeScenario(): void
+    public function beforeScenario(BeforeScenarioTested $beforeScenarioTested): void
     {
-        if ('scenario' !== $this->lifetime) {
-            return;
+        if (
+            'scenario' === $this->lifetime
+            || in_array($beforeScenarioTested->getFeature()->getFile(), $this->scenarioLifetimeFeatureFiles)
+        ) {
+            $this->fixtureService->reloadFixtures();
         }
-
-        $this->fixtureService->reloadFixtures();
     }
 
     /**
